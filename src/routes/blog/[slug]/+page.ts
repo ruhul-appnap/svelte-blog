@@ -1,13 +1,18 @@
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 
-export const load: PageLoad = ({ params }) => {
-	if (params.slug === 'hello-world') {
-		return {
-			title: 'Hello world!',
-			content: 'Welcome to our blog. Lorem ipsum dolor sit amet...'
-		};
+export const ssr = true;
+
+export const load: PageLoad = async ({ params }) => {
+	console.log('Fetching data', params.slug);
+	const response = await fetch(`https://jsonplaceholder.typicode.com/posts/${params.slug}`);
+	if (!response.ok) {
+		error(404, 'Not found');
 	}
 
-	error(404, 'Not found');
+	const data = await response.json();
+
+	return {
+		blogData: data
+	};
 };
